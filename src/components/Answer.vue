@@ -41,13 +41,13 @@ const copyDom = () => {
     if (e.nodeName === 'PRE') {
       const copyButton = document.createElement('span')
       copyButton.setAttribute('class', 'btn-pre-copy')
-      copyButton.innerHTML = '复制'
+      copyButton.innerHTML = `<div i-material-symbols-light:content-copy-outline-rounded class="w-25px h-20px"></div>`
       copyButton.onclick = () => {
         const copyData = e.firstChild.innerText
         copyToClipboard(copyData)
         copyButton.innerHTML = '复制成功'
         setTimeout(() => {
-          copyButton.innerHTML = '复制'
+          copyButton.innerHTML = `<div i-material-symbols-light:content-copy-outline-rounded class="w-25px h-20px"></div>`
         }, 1000)
       }
       // 将节点加入pre标签下
@@ -94,7 +94,7 @@ const copyToClipboard = (content) => {
   right: 0;
   top: 0;
   color: #eee;
-  padding: 5px 10px;
+  padding: 5px;
   cursor: pointer;
 }
 </style>
