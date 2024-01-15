@@ -182,8 +182,6 @@ const getWindowList = async (type) => {
 }
 // 获取talk_id对话的历史记录
 async function getHistoryByTalkId(talk_id) {
-  // 每次查询前先清除之前遗留的问答
-  // setup.clearContentList()
   historyParams.value.union_id = user.union_id
   historyParams.value.talk_id = talk_id
   await getHistorySessionApi(historyParams).then((res) => {
@@ -199,13 +197,16 @@ async function getHistoryByTalkId(talk_id) {
 const getHistory = (ssid) => {
   chatList.value = []
   let currentSession = setup.message.find(item => item.talk_id == ssid)
+  // 判断是否正在发送
   if (!isSending.value) {
+    // 清空问答的contentList数据
     const row = setup.contentList.find(item => item.talk_id === session.select)
     if (row && row.data) {
       row.data = []
     }
     chatList.value = [...currentSession.data]
   } else {
+    // 回显正在问答的数据
     let dataMsg = setup.contentList && setup.contentList.find(item => item.talk_id == ssid)
     if (dataMsg) {
       chatList.value = [...chatList.value, ...dataMsg.data]
@@ -338,20 +339,12 @@ const switchVersion = (key) => {
 // 清屏
 const clearMessage = () => {
   if (!isInputing.value) {
-    console.log('清屏')
     setup.clear(session.select)
     setup.setMessage({ talk_id: session.select, data: [] })
-    console.log('contentList---', setup.contentList)
-
     const row = setup.contentList.find(item => item.talk_id === session.select)
     if (row && row.data) {
       row.data = []
     }
-    console.log('message---', setup.message)
-    console.log('contentList---', setup.contentList)
-    // setup.setContentList({ talk_id: session.select, data: [] })
-    // let currentSession = setup.message.find(item => item.talk_id == session.select)
-    // let dataMsg = setup.contentList.find(item => item.talk_id == session.select)
     chatList.value = []
   } else {
     showToast({
@@ -364,7 +357,7 @@ const clearMessage = () => {
 
 // 发送--提问
 const send = async () => {
-  if (!questionText.value.trim()) {
+  if (!questionText.value || !questionText.value.trim()) {
     showToast({
       message: getHtml('请输入提问内容后再发送'),
       type: 'html'
@@ -439,8 +432,6 @@ const getConten = async () => {
   sse.value = sse
   let messageArray = setup.contentList.find(o => o.talk_id === setup.askTalkId).data
   messageArray.push({ content: '' })
-  // messageArray.push(...dataMsg)
-  // const list = []
   sse.onmessage = async (e) => {
     isLoading.value = false
     isSending.value = true
@@ -511,13 +502,9 @@ function erroeReport() {
 }
 function switchSession(talk_id) {
   showSidebar.value = !showSidebar.value
-
-  // getHistory(key)
-  // 优化 
   // 切换session时，请求历史数据
   getHistoryByTalkId(talk_id)
 }
-
 
 // 提前查询线路管理--判断是否是管理员
 const getPower = async () => {
