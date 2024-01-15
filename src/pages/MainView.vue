@@ -113,7 +113,9 @@ function getHtml(text, icon) {
   }
 
 }
-
+function isNotEmpty(obj) {
+  return Object.keys(obj).length !== 0;
+}
 function scrollY() {
   if (messageRef.value) {
     messageRef.value.scrollTo(0, messageRef.value.scrollHeight);
@@ -457,7 +459,7 @@ const getConten = async () => {
       return
     }
     // 处理收到的消息
-    data = JSON.parse(e.data).choices[0].delta.content
+    data = isNotEmpty(JSON.parse(e.data).choices[0].delta) ? JSON.parse(e.data).choices[0].delta.content : ''
     const last = messageArray.pop()
     const lastContent = last.content + data
     messageArray.push({ content: lastContent, state: 'success' })
