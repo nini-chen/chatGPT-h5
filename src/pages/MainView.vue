@@ -359,7 +359,8 @@ const clearMessage = () => {
 
 // 发送--提问
 const send = async () => {
-  if (!questionText.value || !questionText.value.trim()) {
+  let questionT = questionText.value ? questionText.value.replace(/\s/g, '') : null
+  if (!questionT) {
     showToast({
       message: getHtml('请输入提问内容后再发送'),
       type: 'html'
@@ -376,7 +377,7 @@ const send = async () => {
     if (rowContent.data) messageArray = rowContent.data
   }
 
-  askParmas.value.message = questionText.value
+  askParmas.value.message = questionT
   askParmas.value.union_id = user.union_id
   askParmas.value.talk_id = session.select
   askParmas.value.context = []
@@ -397,7 +398,7 @@ const send = async () => {
   // 获取当前会话中问答的数据
   let dataMsg = setup.message.find(o => o.talk_id === session.select)
   // 合并历史数据和当前问答的数据
-  messageArray.push(...dataMsg.data, { title: questionText.value })
+  messageArray.push(...dataMsg.data, { title: questionT })
   chatList.value = messageArray
   questionText.value = null
   askQuestion(url, askParmas).then(res => {
@@ -410,14 +411,14 @@ const send = async () => {
     if (!res.data.success) {
       // 去掉聚焦点 
       const btn = document.getElementById('sendBtn')
-      btn.blur()
+      btn && btn.blur()
       showToast({
         message: getHtml(res.data.errmsg ? res.data.errmsg : '操作失败，请联系管理员', 'close'),
         type: 'html'
       })
       isLoading.value = false
       isInputing.value = false
-      questionText.value = '  '
+      questionText.value = null
       return
     }
     getConten()
@@ -592,7 +593,7 @@ onMounted(async () => {
       <button class="bg-#0277F5 h-40px mx-3" @click="send" v-if="!isSending">
         <div i-carbon:send-alt-filled class="color-white"></div>
       </button>
-      <button v-if="isSending" class="bg-#E60C00 h-40px mx-3" id="stopButton" @click="send">
+      <button v-if="isSending" class="bg-#E60C00 h-40px mx-3" id="stopButton">
         <div i-ph:prohibit-bold class="color-white"></div>
       </button>
     </div>
